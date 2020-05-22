@@ -3,7 +3,7 @@ COVID-19 Tracker App
 
 
 # STACK
-*
-A Simple Open Source Application to Track Covid 19 virus built in react native using Novel Covid Api
+***A Simple Open Source Application to Track Covid 19 virus built in react native using Novel Covid Api***	
 
-*
+
+
