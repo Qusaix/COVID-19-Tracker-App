@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet , View } from 'react-native';
+import { StyleSheet , View , Image , Button} from 'react-native';
 import { Container, Header, Content, Card, CardItem, Body, Text , Left , Right } from 'native-base';
 import { MaterialCommunityIcons , FontAwesome5 , FontAwesome} from '@expo/vector-icons';
 
@@ -20,6 +20,8 @@ class Main extends React.Component
             'critical':0,
             'active':0,
             "update":"",
+            "flag":"",
+            "loading":true,
 
 
         }
@@ -27,6 +29,7 @@ class Main extends React.Component
 
 
     componentDidMount(){
+
 
         fetch("https://disease.sh/v2/countries/jordan",{
             method:"get",
@@ -39,7 +42,7 @@ class Main extends React.Component
             console.log(res);
 
             let lastUpdate = new Date(parseInt(res.updated));
-            let st = lastUpdate.toString();
+            let lastUpdateString = lastUpdate.toString();
 
 
             this.setState({
@@ -51,12 +54,16 @@ class Main extends React.Component
                 recoverd:res.recovered,
                 critical:res.critical,
                 active:res.active,
-                update:st,
+                update:lastUpdateString,
+                flag:res.countryInfo.flag,
+                loading:true,
             })
         })
 
     }
 
+    
+  
 
     update_data = () =>{
 
@@ -92,21 +99,25 @@ class Main extends React.Component
             <Container>
            <Header
            style={{
-               backgroundColor:"gray"
+               backgroundColor:"#000"
            }}
-           androidStatusBarColor={"gray"}
+           androidStatusBarColor={"#000"}
            >
           <Body style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }} >
-            <Text style={{fontSize:25,fontWeight:"bold",color:"#fff"}} >COVID 19 Tracker</Text>
+            <Image
+            source={{uri:this.state.flag}}
+            style={{width:"20%",height:"20%"}}
+            />
+            <Text style={{fontSize:25,fontWeight:"bold",color:"#fff"}} > Jordan COVID 19 Tracker</Text>
           </Body>
         </Header>
             <Content>
-                <Text style={{margin:"3%",fontSize:12}} >Last Time Was Updated {this.state.update} </Text>
+                <Text style={{margin:"3%",fontSize:12}} >Last Time Was Updated: {this.state.update} </Text>
               <Card>
                 <CardItem>
                   <Body>
                     <Text>
-                      Today Info
+                      Today's Info
                     </Text>
                     <View style={{flex:1,flexDirection:"row",flexWrap:"wrap"}} >
 
@@ -126,7 +137,7 @@ class Main extends React.Component
                 <CardItem>
                   <Body>
                     <Text>
-                      OverAll info
+                      Overall info's
                     </Text>
                     <Text style={{margin:"5%" , fontSize:25}}>
                     <FontAwesome name={"heartbeat"} size={15} /> Recoverd: {this.state.recoverd}
@@ -139,6 +150,9 @@ class Main extends React.Component
                     </Text>
                     <Text style={{margin:"5%" , fontSize:25}}>
                     <FontAwesome name={"heartbeat"} size={15} /> Deaths: {this.state.deaths}
+                    </Text>
+                    <Text style={{margin:"5%" , fontSize:25}}>
+                    <FontAwesome name={"heartbeat"} size={15} /> ALL Cases: {this.state.cases}
                     </Text>
                     <Text style={{margin:"5%" , fontSize:25}}>
                     <FontAwesome name={"heartbeat"} size={15} /> Tests: {this.state.tests}
@@ -162,6 +176,16 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       justifyContent: 'center',
     },
+    animationContainer: {
+      backgroundColor: '#fff',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flex: 1,
+    },
+    buttonContainer: {
+      paddingTop: 20,
+    },
+  
   });
   
 
