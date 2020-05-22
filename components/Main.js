@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet , View , Image , Button} from 'react-native';
 import { Container, Header, Content, Card, CardItem, Body, Text , Left , Right } from 'native-base';
-import { MaterialCommunityIcons , FontAwesome5 , FontAwesome} from '@expo/vector-icons';
+import { MaterialCommunityIcons , FontAwesome5 , FontAwesome , Octicons } from '@expo/vector-icons';
 
 class Main extends React.Component
 {
@@ -47,7 +47,7 @@ class Main extends React.Component
 
             this.setState({
                 today_cases:res.todayCases,
-                today_deaths:res.todayCases,
+                today_deaths:res.todayDeaths,
                 tests:res.tests,
                 cases:res.cases,
                 deaths:res.deaths,
@@ -56,7 +56,7 @@ class Main extends React.Component
                 active:res.active,
                 update:lastUpdateString,
                 flag:res.countryInfo.flag,
-                loading:true,
+                loading:false,
             })
         })
 
@@ -79,7 +79,7 @@ class Main extends React.Component
 
             this.setState({
                 today_cases:res.todayCases,
-                today_deaths:res.todayCases,
+                today_deaths:res.todayDeaths,
                 tests:res.tests,
                 cases:res.cases,
                 deaths:res.deaths,
@@ -95,6 +95,15 @@ class Main extends React.Component
 
     render()
     {
+      if(this.state.loading)
+      {
+        return(
+          <View style={{flex:1,justifyContent:"center",alignItems:"center"}}>
+            <Octicons name={"database"} style={{color:"gray"}} size={50} />
+            <Text style={{fontSize:30,color:"gray"}}>Getting Data...</Text>
+          </View>
+        )
+      }
         return(
             <Container>
            <Header
@@ -125,7 +134,7 @@ class Main extends React.Component
                     <FontAwesome5 name={"bed"} size={15} /> Cases: {this.state.today_cases}
                     </Text>
                     <Text style={{margin:"5%" , fontSize:25}}>
-                    <MaterialCommunityIcons name={"emoticon-dead"} size={15} /> Deaths: {this.state.today_deaths} 
+                    <MaterialCommunityIcons name={"emoticon-dead"} size={15} /> Deaths: {this.state.today_deaths}
                     </Text>
                     </View>
                    
