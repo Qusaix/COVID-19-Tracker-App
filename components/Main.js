@@ -2,6 +2,7 @@ import React from "react";
 import { StyleSheet , View , Image , Button} from 'react-native';
 import { Container, Header, Content, Card, CardItem, Body, Text , Left , Right } from 'native-base';
 import { MaterialCommunityIcons , FontAwesome5 , FontAwesome , Octicons } from '@expo/vector-icons';
+import Moment from 'moment';
 
 class Main extends React.Component
 {
@@ -95,6 +96,8 @@ class Main extends React.Component
 
     render()
     {
+      Moment.locale('en');
+
       if(this.state.loading)
       {
         return(
@@ -121,7 +124,7 @@ class Main extends React.Component
           </Body>
         </Header>
             <Content>
-                <Text style={{margin:"3%",fontSize:12}} >Last Time Was Updated: {this.state.update} </Text>
+                <Text style={{margin:"3%",fontSize:12}} >Last Time Was Updated: {Moment(this.state.update).format('hh:mmA d MMM')}</Text>
               <Card>
                 <CardItem>
                   <Body>
