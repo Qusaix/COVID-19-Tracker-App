@@ -124,7 +124,7 @@ class Main extends React.Component
           </Body>
         </Header>
             <Content>
-                <Text style={{margin:"3%",fontSize:12}} >Last Time Was Updated: {Moment(this.state.update).format('hh:mmA d MMM')}</Text>
+                <Text style={{margin:"3%",fontSize:12}} >Last Time Was Updated: {Moment(this.state.update).format('hh:mmA dddd')}</Text>
               <Card>
                 <CardItem>
                   <Body>
