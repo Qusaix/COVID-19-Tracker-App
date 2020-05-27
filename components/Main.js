@@ -23,6 +23,7 @@ class Main extends React.Component
             "update":"",
             "flag":"",
             "loading":true,
+            "yesterday_cases":0,
 
 
         }
@@ -57,9 +58,23 @@ class Main extends React.Component
                 active:res.active,
                 update:lastUpdateString,
                 flag:res.countryInfo.flag,
-                loading:false,
             })
         })
+
+        fetch("https://disease.sh/v2/countries/jordan?yesterday=true",{
+          method:"get",
+          headers:{
+               
+          }
+      })
+      .then((res)=>res.json())
+      .then((res)=>{
+
+          this.setState({
+              yesterday_cases:res.todayCases,
+              loading:false,
+          })
+      })
 
     }
 
@@ -84,13 +99,15 @@ class Main extends React.Component
                 tests:res.tests,
                 cases:res.cases,
                 deaths:res.deaths,
-                recoverd:res.recovered,
+                recoverd:res.recovered, 
                 critical:res.critical,
                 active:res.active,
                 update:lastUpdate,
             })
             
         })
+
+        
 
     }
 
@@ -131,14 +148,23 @@ class Main extends React.Component
                     <Text>
                       Today's Info
                     </Text>
-                    <View style={{flex:1,flexDirection:"row",flexWrap:"wrap"}} >
+                    <View style={{flex:1,flexDirection:"row",flexWrap:"wrap",marginTop:"3%"}} >
 
-                    <Text style={{margin:"5%" , fontSize:25}}>
-                    <FontAwesome5 name={"bed"} size={15} /> Cases: {this.state.today_cases}
-                    </Text>
-                    <Text style={{margin:"5%" , fontSize:25}}>
-                    <MaterialCommunityIcons name={"emoticon-dead"} size={15} /> Deaths: {this.state.today_deaths}
-                    </Text>
+                      <View style={{flex:1,alignItems:"center",justifyContent:"center"}}>
+                          <FontAwesome5 name={"bed"} size={30}  />
+                          <Text style={{margin:"5%" , fontSize:25}}>
+                            Cases: {this.state.today_cases}
+                          </Text>
+                      </View>
+
+                      <View style={{flex:1,alignItems:"center",justifyContent:"center"}}>
+                        <MaterialCommunityIcons name={"emoticon-dead"} size={30} />
+                        <Text style={{margin:"5%" , fontSize:25}}>
+                          Deaths: {this.state.today_deaths}
+                        </Text>
+                      </View>
+
+                   
                     </View>
                    
                   </Body>
@@ -151,22 +177,25 @@ class Main extends React.Component
                     <Text>
                       Overall info's
                     </Text>
-                    <Text style={{margin:"5%" , fontSize:25}}>
+                    <Text style={{margin:"5%" , fontSize:18}}>
+                    <FontAwesome name={"heartbeat"} size={15} /> Yesterday Cases: {this.state.yesterday_cases}
+                    </Text>
+                    <Text style={{margin:"5%" , fontSize:18}}>
                     <FontAwesome name={"heartbeat"} size={15} /> Recoverd: {this.state.recoverd}
                     </Text>
-                    <Text style={{margin:"5%" , fontSize:25}}>
+                    <Text style={{margin:"5%" , fontSize:18}}>
                     <FontAwesome name={"heartbeat"} size={15} /> Active: {this.state.active}
                     </Text>
-                    <Text style={{margin:"5%" , fontSize:25}}>
+                    <Text style={{margin:"5%" , fontSize:18}}>
                     <FontAwesome name={"heartbeat"} size={15} /> Critical: {this.state.critical}
                     </Text>
-                    <Text style={{margin:"5%" , fontSize:25}}>
+                    <Text style={{margin:"5%" , fontSize:18}}>
                     <FontAwesome name={"heartbeat"} size={15} /> Deaths: {this.state.deaths}
                     </Text>
-                    <Text style={{margin:"5%" , fontSize:25}}>
+                    <Text style={{margin:"5%" , fontSize:18}}>
                     <FontAwesome name={"heartbeat"} size={15} /> ALL Cases: {this.state.cases}
                     </Text>
-                    <Text style={{margin:"5%" , fontSize:25}}>
+                    <Text style={{margin:"5%" , fontSize:18}}>
                     <FontAwesome name={"heartbeat"} size={15} /> Tests: {this.state.tests}
                     </Text>                   
                   </Body>
