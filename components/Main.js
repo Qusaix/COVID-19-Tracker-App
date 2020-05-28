@@ -6,6 +6,7 @@ import Moment from 'moment';
 import * as Localization from 'expo-localization';
 import i18n from 'i18n-js';
 import { ar } from "../localization/languages.js"
+import * as Font from 'expo-font';
 
 i18n.translations = {
   en: { 
@@ -68,7 +69,21 @@ class Main extends React.Component
     }
 
 
-    componentDidMount(){
+   async componentDidMount(){
+
+    await Font.loadAsync({
+      Roboto: require('native-base/Fonts/Roboto.ttf'),
+      Roboto_medium: require('native-base/Fonts/Roboto_medium.ttf'),
+      Cairo_Black: require('../assets/fonts/Cairo_Black.ttf'),
+      Cairo_Regular: require('../assets/fonts/Cairo-Regular.ttf'),
+      Cairo_Bold: require('../assets/fonts/Cairo-Bold.ttf'),
+
+
+
+      
+      
+    });
+      
 
       // Set the locale once at the beginning of your app.
       i18n.locale = Localization.locale;
@@ -177,7 +192,7 @@ class Main extends React.Component
             source={{uri:this.state.flag}}
             style={{width:"20%",height:"20%"}}
             />
-            <Text style={{fontSize:25,fontWeight:"bold",color:"#fff"}} > Jordan COVID 19 Tracker</Text>
+            <Text style={{fontSize:25,color:"#fff",fontFamily:"Cairo_Regular"}} > Jordan COVID 19 Tracker</Text>
           </Body>
         </Header>
             <Content>
@@ -185,21 +200,21 @@ class Main extends React.Component
               <Card>
                 <CardItem>
                   <Body>
-                    <Text>
+                    <Text style={{fontFamily:"Cairo_Regular"}}>
                       {i18n.t('today_info')}
                     </Text>
                     <View style={{flex:1,flexDirection:"row",flexWrap:"wrap",marginTop:"3%"}} >
 
                       <View style={{flex:1,alignItems:"center",justifyContent:"center"}}>
                           <FontAwesome5 name={"bed"} size={30}  />
-                          <Text style={{margin:"5%" , fontSize:25}}>
+                          <Text style={{margin:"5%" , fontSize:25,fontFamily:"Cairo_Bold"}}>
                           {i18n.t('cases')}: {this.state.today_cases}
                           </Text>
                       </View>
 
                       <View style={{flex:1,alignItems:"center",justifyContent:"center"}}>
                         <MaterialCommunityIcons name={"emoticon-dead"} size={30} />
-                        <Text style={{margin:"5%" , fontSize:25}}>
+                        <Text style={{margin:"5%" , fontSize:25,fontFamily:"Cairo_Bold"}}>
                         {i18n.t('deaths')}: {this.state.today_deaths}
                         </Text>
                       </View>
@@ -214,28 +229,28 @@ class Main extends React.Component
               <Card>
                 <CardItem>
                   <Body>
-                    <Text>
+                    <Text style={{fontFamily:"Cairo_Bold"}}>
                     {i18n.t('over_all_info')}
                     </Text>
-                    <Text style={{margin:"5%" , fontSize:18}}>
+                    <Text style={{margin:"5%" ,fontFamily:"Cairo_Regular", fontSize:18}}>
                     <FontAwesome name={"heartbeat"} size={15} /> {i18n.t('yesterday_cases')}: {this.state.yesterday_cases}
                     </Text>
-                    <Text style={{margin:"5%" , fontSize:18}}>
+                    <Text style={{margin:"5%" ,fontFamily:"Cairo_Regular", fontSize:18}}>
                     <FontAwesome name={"heartbeat"} size={15} /> {i18n.t('recoverd')}: {this.state.recoverd}
                     </Text>
-                    <Text style={{margin:"5%" , fontSize:18}}>
+                    <Text style={{margin:"5%" ,fontFamily:"Cairo_Regular", fontSize:18}}>
                     <FontAwesome name={"heartbeat"} size={15} /> {i18n.t('active')}: {this.state.active}
                     </Text>
-                    <Text style={{margin:"5%" , fontSize:18}}>
+                    <Text style={{margin:"5%" ,fontFamily:"Cairo_Regular", fontSize:18}}>
                     <FontAwesome name={"heartbeat"} size={15} /> {i18n.t('critical')}: {this.state.critical}
                     </Text>
-                    <Text style={{margin:"5%" , fontSize:18}}>
+                    <Text style={{margin:"5%" ,fontFamily:"Cairo_Regular", fontSize:18}}>
                     <FontAwesome name={"heartbeat"} size={15} /> {i18n.t('deaths')}: {this.state.deaths}
                     </Text>
-                    <Text style={{margin:"5%" , fontSize:18}}>
+                    <Text style={{margin:"5%" ,fontFamily:"Cairo_Regular", fontSize:18}}>
                     <FontAwesome name={"heartbeat"} size={15} /> {i18n.t('all_cases')}: {this.state.cases}
                     </Text>
-                    <Text style={{margin:"5%" , fontSize:18}}>
+                    <Text style={{margin:"5%" ,fontFamily:"Cairo_Regular", fontSize:18}}>
                     <FontAwesome name={"heartbeat"} size={15} /> {i18n.t('tests')}: {this.state.tests}
                     </Text>                   
                   </Body>
