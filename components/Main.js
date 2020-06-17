@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet , View , Image , Button} from 'react-native';
+import { StyleSheet , View , Image , Button, AsyncStorage} from 'react-native';
 import { Container, Header, Content, Card, CardItem, Body, Text , Left , Right } from 'native-base';
 import { MaterialCommunityIcons , FontAwesome5 , FontAwesome , Octicons } from '@expo/vector-icons';
 import Moment from 'moment';
@@ -7,13 +7,16 @@ import * as Localization from 'expo-localization';
 import i18n from 'i18n-js';
 import { ar } from "../localization/languages.js"
 import * as Font from 'expo-font';
+import { LineChart } from "react-native-chart-kit";
+import { Dimensions } from "react-native";
+const screenWidth = Dimensions.get("window").width/1.1;
 
 i18n.translations = {
   en: { 
     last_time_was_updated: 'Last Time Was Updated',
-    today_info:"Today's info",
+    today_info:"Analytics",
     deaths:"Deaths",
-    cases:"Cases",
+    cases:"Today Cases",
     yesterday_cases:"Yesterday Cases",
     recoverd:"Recoverd",
     active:"Active",
@@ -25,9 +28,9 @@ i18n.translations = {
   },
   ar: { 
     last_time_was_updated: 'تم التحديث',
-    today_info:"معلومات اليوم",
+    today_info:"احصائيات",
     deaths:"الموتى",
-    cases:"الاصابات",
+    cases:"اصابات اليوم",
     yesterday_cases:"اصابات البارحة",
     recoverd:"حالات الشفاء",
     active:"حالات نشطه",
@@ -42,6 +45,29 @@ i18n.translations = {
 
 // When a value is missing from a language it'll fallback to another language with the key present.
 i18n.fallbacks = true;
+
+const data = {
+  labels: ["5/15", "5/16", "5/17", "5/18", "5/19", "6/1"],
+  datasets: [
+    {
+      data: [5, 25, 9, 10, 38, 0],
+      color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`, // optional
+      strokeWidth: 3 // optional
+    }
+  ],
+ // legend: ["Rainy Days", "Sunny Days", "Snowy Days"] // optional
+};
+const chartConfig = {
+  backgroundGradientFrom: "black",
+  backgroundGradientFromOpacity: 0.5,
+  backgroundGradientTo: "red",
+  backgroundGradientToOpacity: 0.5,
+  color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`,
+  strokeWidth: 2, // optional, default 3
+  barPercentage: 0,
+  useShadowColorFromDataset: true // optional
+};
+
 
 class Main extends React.Component
 {
@@ -63,6 +89,9 @@ class Main extends React.Component
             "flag":"",
             "loading":true,
             "yesterday_cases":0,
+            'all_analyrics':[],
+            "analytics_date":[0],
+            "analytics_num":[0],
 
 
         }
@@ -93,14 +122,13 @@ class Main extends React.Component
             method:"get",
             headers:{
                 
-            }
+            } 
         })
         .then((res)=>res.json())
         .then((res)=>{
 
             let lastUpdate = new Date(parseInt(res.updated));
             let lastUpdateString = lastUpdate.toString();
-
 
             this.setState({
                 today_cases:res.todayCases,
@@ -114,7 +142,102 @@ class Main extends React.Component
                 update:lastUpdateString,
                 flag:res.countryInfo.flag,
             })
+
+
+
+
+      /** Analytics */
+
+      // get the data
+      let date = new Date;
+      let today = date.getDate();
+      let new_info = {'date':0,'cases':0};
+      let all_data = [{'date':0,'cases':0}]; 
+
+      AsyncStorage.setItem('analytics',JSON.stringify( all_data ));
+
+      if( all_data[ all_data.length -1 ].date ==! today )
+      {
+
+
+        new_info.date = today;
+        new_info.cases = this.state.today_cases;
+  
+        all_data.push(new_info);
+
+        let i;
+       
+
+        for( i = 0 ; i < all_data.length ; i++)
+        {
+          this.state.analytics_date.push( all_data[i].date );
+          this.state.analytics_num.push( all_data[i].cases ); 
+
+        }
+
+        this.setState({
+          analytics_date:this.state.analytics_date,
+          analytics_num:this.state.analytics_num,
+        });
+
+        // if all data have more then 7 dayes delete the last day
+        if( all_data.length > 7 )
+        {
+          all_data.pop()
+        }
+
+
+
+        // save the data to in the phone
+        AsyncStorage.setItem('analytics',JSON.stringify( all_data ));
+
+
+
+      }
+      else
+      {
+        let that = this;
+        AsyncStorage.getItem('name', (error, result) => {
+          this.setState({
+            all_analyrics: JSON.parse(result) 
+            },
+           function () {
+
+            let data = that.state.all_analyrics;
+
+            let i;
+
+            for( i=0; i<data.length; i++ )
+            {
+              that.state.analytics_date.push(data[i].date)
+              that.state.analytics_num.push(data[i].cases)
+            }
+            
+            that.setState({
+              analytics_date: that.state.analytics_date,
+              analytics_num:that.state.analytics_num
+            });
+
+            });
+          });
+
+        
+        
+
+
+      }
+
+     // alert(this.state.today_cases)
+
+
+      console.log(all_data);
+
+
+
         })
+
+
+        /** Yesterday */
 
         fetch("https://disease.sh/v2/countries/jordan?yesterday=true",{
           method:"get",
@@ -130,6 +253,10 @@ class Main extends React.Component
               loading:false,
           })
       })
+
+   
+
+
 
     }
 
@@ -164,6 +291,11 @@ class Main extends React.Component
 
         
 
+    }
+
+    _get_diffrent_data = ( today , yesterday )=>
+    {
+      return Math.abs(today - yesterday);
     }
 
     render()
@@ -205,7 +337,7 @@ class Main extends React.Component
                     </Text>
                     <View style={{flex:1,flexDirection:"row",flexWrap:"wrap",marginTop:"3%"}} >
 
-                      <View style={{flex:1,alignItems:"center",justifyContent:"center"}}>
+                      {/* <View style={{flex:1,alignItems:"center",justifyContent:"center"}}>
                           <FontAwesome5 name={"bed"} size={30}  />
                           <Text style={{margin:"5%" , fontSize:25,fontFamily:"Cairo_Bold"}}>
                           {i18n.t('cases')}: {this.state.today_cases}
@@ -217,7 +349,22 @@ class Main extends React.Component
                         <Text style={{margin:"5%" , fontSize:25,fontFamily:"Cairo_Bold"}}>
                         {i18n.t('deaths')}: {this.state.today_deaths}
                         </Text>
-                      </View>
+                      </View> */}
+                      <LineChart
+                    data={{
+                      labels: this.state.analytics_date,
+                      datasets: [
+                        {
+                          data: this.state.analytics_num,
+                          color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`, // optional
+                          strokeWidth: 3 // optional
+                        }
+                      ],
+                    }}
+                    width={screenWidth}
+                    height={220}
+                    chartConfig={chartConfig}
+             />
 
                    
                     </View>
@@ -227,10 +374,16 @@ class Main extends React.Component
               </Card>
 
               <Card>
+              
+
+
                 <CardItem>
                   <Body>
                     <Text style={{fontFamily:"Cairo_Bold"}}>
                     {i18n.t('over_all_info')}
+                    </Text>
+                    <Text style={{margin:"5%" ,fontFamily:"Cairo_Regular", fontSize:18}}>
+                    <FontAwesome name={"heartbeat"} size={15} /> {i18n.t('cases')}: {this.state.today_cases}
                     </Text>
                     <Text style={{margin:"5%" ,fontFamily:"Cairo_Regular", fontSize:18}}>
                     <FontAwesome name={"heartbeat"} size={15} /> {i18n.t('yesterday_cases')}: {this.state.yesterday_cases}
