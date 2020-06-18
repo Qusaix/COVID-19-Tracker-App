@@ -127,26 +127,7 @@ class Main extends React.Component
         .then((res)=>res.json())
         .then( async (res)=>{
 
-            let lastUpdate = new Date(parseInt(res.updated));
-            let lastUpdateString = lastUpdate.toString();
-
-            this.setState({
-                today_cases:res.todayCases,
-                today_deaths:res.todayDeaths,
-                tests:res.tests,
-                cases:res.cases,
-                deaths:res.deaths,
-                recoverd:res.recovered,
-                critical:res.critical,
-                active:res.active,
-                update:lastUpdateString,
-                flag:res.countryInfo.flag,
-            })
-
-
-
-
-      /** Analytics */
+           /** Analytics */
 
       // get the data
       let date = new Date;
@@ -336,7 +317,28 @@ class Main extends React.Component
             alert("there somthing wrong!")
         }
 
+             /** UPDATE INFO */
 
+            let lastUpdate = new Date(parseInt(res.updated));
+            let lastUpdateString = lastUpdate.toString();
+
+            this.setState({
+                today_cases:res.todayCases,
+                today_deaths:res.todayDeaths,
+                tests:res.tests,
+                cases:res.cases,
+                deaths:res.deaths,
+                recoverd:res.recovered,
+                critical:res.critical,
+                active:res.active,
+                update:lastUpdateString,
+                flag:res.countryInfo.flag,
+            })
+
+
+
+
+     
       
 
 
