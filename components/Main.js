@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet , View , Image , Button, AsyncStorage} from 'react-native';
+import { StyleSheet , View , Image , Button, AsyncStorage, Alert} from 'react-native';
 import { Container, Header, Content, Card, CardItem, Body, Text , Left , Right } from 'native-base';
 import { MaterialCommunityIcons , FontAwesome5 , FontAwesome , Octicons } from '@expo/vector-icons';
 import Moment from 'moment';
@@ -14,7 +14,7 @@ const screenWidth = Dimensions.get("window").width/1.1;
 i18n.translations = {
   en: { 
     last_time_was_updated: 'Last Time Was Updated',
-    today_info:"Analytics",
+    today_info:"Week Analytics",
     deaths:"Deaths",
     cases:"Today Cases",
     yesterday_cases:"Yesterday Cases",
@@ -28,7 +28,7 @@ i18n.translations = {
   },
   ar: { 
     last_time_was_updated: 'تم التحديث',
-    today_info:"احصائيات",
+    today_info:"احصائيات الاسبوع",
     deaths:"الموتى",
     cases:"اصابات اليوم",
     yesterday_cases:"اصابات البارحة",
@@ -125,7 +125,7 @@ class Main extends React.Component
             } 
         })
         .then((res)=>res.json())
-        .then((res)=>{
+        .then( async (res)=>{
 
             let lastUpdate = new Date(parseInt(res.updated));
             let lastUpdateString = lastUpdate.toString();
@@ -154,80 +154,195 @@ class Main extends React.Component
       let new_info = {'date':0,'cases':0};
       let all_data = [{'date':0,'cases':0}]; 
 
-      AsyncStorage.setItem('analytics',JSON.stringify( all_data ));
 
-      if( all_data[ all_data.length -1 ].date ==! today )
-      {
+     
 
-
-        new_info.date = today;
-        new_info.cases = this.state.today_cases;
-  
-        all_data.push(new_info);
-
-        let i;
-       
-
-        for( i = 0 ; i < all_data.length ; i++)
+        // get the analytics
+        try
         {
-          this.state.analytics_date.push( all_data[i].date );
-          this.state.analytics_num.push( all_data[i].cases ); 
+            let week_data = await AsyncStorage.getItem('analytics');
+           
 
-        }
-
-        this.setState({
-          analytics_date:this.state.analytics_date,
-          analytics_num:this.state.analytics_num,
-        });
-
-        // if all data have more then 7 dayes delete the last day
-        if( all_data.length > 7 )
-        {
-          all_data.pop()
-        }
-
-
-
-        // save the data to in the phone
-        AsyncStorage.setItem('analytics',JSON.stringify( all_data ));
-
-
-
-      }
-      else
-      {
-        let that = this;
-        AsyncStorage.getItem('name', (error, result) => {
-          this.setState({
-            all_analyrics: JSON.parse(result) 
-            },
-           function () {
-
-            let data = that.state.all_analyrics;
-
-            let i;
-
-            for( i=0; i<data.length; i++ )
+            if(week_data != null)
             {
-              that.state.analytics_date.push(data[i].date)
-              that.state.analytics_num.push(data[i].cases)
+                let analytics_array = JSON.parse(week_data);
+
+                // check if we are in the same day 
+                if( analytics_array[ analytics_array.length -1 ].date !== today )
+                {
+                 
+                  new_info.date = today;
+                  new_info.cases = this.state.today_cases;
+                  
+                  analytics_array.push(new_info);
+
+                  // if all data have more then 7 dayes delete the last day
+                  if( analytics_array.length > 7 )
+                  {
+                    
+                    analytics_array.shift()
+                  }
+
+                  let i;
+
+                  for( i = 0 ; i < analytics_array.length ; i++)
+                  {
+                    this.state.analytics_date.push( analytics_array[i].date );
+                    this.state.analytics_num.push( analytics_array[i].cases ); 
+          
+                  }
+
+                
+
+                  this.setState({
+                    analytics_date:this.state.analytics_date,
+                    analytics_num:this.state.analytics_num,
+                  });
+
+
+
+                  // // save the data to in the phone
+                   AsyncStorage.setItem('analytics',JSON.stringify( analytics_array ));
+
+
+
+                }
+                else
+                {
+                  let that = this;
+                  AsyncStorage.getItem('analytics', (error, result) => {
+                    this.setState({
+                      all_analyrics: JSON.parse(result) 
+                      },
+                    function () {
+          
+                      let data = that.state.all_analyrics;
+
+                      
+          
+                      let i;
+          
+                      for( i=0; i<data.length; i++ )
+                      {
+                        that.state.analytics_date.push(data[i].date)
+                        that.state.analytics_num.push(data[i].cases)
+                      }
+                      
+                      that.setState({
+                        analytics_date: that.state.analytics_date,
+                        analytics_num:that.state.analytics_num
+                      });
+          
+                      });
+                    });
+
+
+                }
+
+
+
+              
+            }
+            else
+            {
+                /** CREATE ANALYTICS  */
+                AsyncStorage.setItem('analytics',JSON.stringify([{'date':0,'cases':0}]))
+
+                let analytics_array_for_newUser = JSON.parse(week_data);
+
+
+                if( analytics_array_for_newUser[ analytics_array_for_newUser.length -1 ].date !== today )
+                {
+                 
+                  new_info.date = today;
+                  new_info.cases = this.state.today_cases;
+                  
+                  analytics_array_for_newUser.push(new_info);
+
+                  // if all data have more then 7 dayes delete the last day
+                  if( analytics_array_for_newUser.length > 7 )
+                  {
+                    
+                    analytics_array_for_newUser.shift()
+                  }
+
+                  let i;
+
+                  for( i = 0 ; i < analytics_array_for_newUser.length ; i++)
+                  {
+                    this.state.analytics_date.push( analytics_array_for_newUser[i].date );
+                    this.state.analytics_num.push( analytics_array_for_newUser[i].cases ); 
+          
+                  }
+
+                
+
+                  this.setState({
+                    analytics_date:this.state.analytics_date,
+                    analytics_num:this.state.analytics_num,
+                  });
+
+
+
+                  // // save the data to in the phone
+                   AsyncStorage.setItem('analytics',JSON.stringify( analytics_array_for_newUser ));
+
+
+
+                }
+                else
+                {
+                  let that = this;
+                  AsyncStorage.getItem('analytics', (error, result) => {
+                    this.setState({
+                      all_analyrics: JSON.parse(result) 
+                      },
+                    function () {
+          
+                      let data = that.state.all_analyrics;
+
+                      
+          
+                      let i;
+          
+                      for( i=0; i<data.length; i++ )
+                      {
+                        that.state.analytics_date.push(data[i].date)
+                        that.state.analytics_num.push(data[i].cases)
+                      }
+                      
+                      that.setState({
+                        analytics_date: that.state.analytics_date,
+                        analytics_num:that.state.analytics_num
+                      });
+          
+                      });
+                    });
+
+
+                }
+
+               
+
+
+
             }
             
-            that.setState({
-              analytics_date: that.state.analytics_date,
-              analytics_num:that.state.analytics_num
-            });
-
-            });
-          });
-
-        
-        
 
 
-      }
+        } 
+        catch
+        {
+            alert("there somthing wrong!")
+        }
 
-     // alert(this.state.today_cases)
+
+      
+
+
+
+      
+     
 
 
       console.log(all_data);
