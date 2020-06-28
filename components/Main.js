@@ -7,7 +7,7 @@ import * as Localization from 'expo-localization';
 import i18n from 'i18n-js';
 import { ar } from "../localization/languages.js"
 import * as Font from 'expo-font';
-import { LineChart } from "react-native-chart-kit";
+import { ProgressChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
 const screenWidth = Dimensions.get("window").width/1.1;
 
@@ -25,6 +25,7 @@ i18n.translations = {
     tests:"Tests",
     over_all_info:"Overall info's",
     loading:"Getting Data...",
+    app_title:'COVID 19 IN JORDAN',
   },
   ar: { 
     last_time_was_updated: 'تم التحديث',
@@ -39,6 +40,7 @@ i18n.translations = {
     tests:"الفحوصات",
     over_all_info:"جميع المعلومات",
     loading:"جاري جمع المعلومات...",
+    app_title:'كورونا في الاردن',
 
   },
 };
@@ -46,17 +48,23 @@ i18n.translations = {
 // When a value is missing from a language it'll fallback to another language with the key present.
 i18n.fallbacks = true;
 
+// const data = {
+//   labels: ["5/15", "5/16", "5/17", "5/18", "5/19", "6/1"],
+//   datasets: [
+//     {
+//       data: [5, 25, 9, 10, 38, 0],
+//       color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`, // optional
+//       strokeWidth: 3 // optional
+//     }
+//   ],
+//  // legend: ["Rainy Days", "Sunny Days", "Snowy Days"] // optional
+// };
+// each value represents a goal ring in Progress chart
 const data = {
-  labels: ["5/15", "5/16", "5/17", "5/18", "5/19", "6/1"],
-  datasets: [
-    {
-      data: [5, 25, 9, 10, 38, 0],
-      color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`, // optional
-      strokeWidth: 3 // optional
-    }
-  ],
- // legend: ["Rainy Days", "Sunny Days", "Snowy Days"] // optional
+  //labels: ["Cases","Deaths"], // optional
+  data: [0.4, 0.6]
 };
+
 const chartConfig = {
   backgroundGradientFrom: "black",
   backgroundGradientFromOpacity: 0.5,
@@ -92,6 +100,7 @@ class Main extends React.Component
             'all_analyrics':[],
             "analytics_date":[0],
             "analytics_num":[0],
+            'today_status':[],
 
 
         }
@@ -146,6 +155,17 @@ class Main extends React.Component
                 update:lastUpdateString,
                 flag:res.countryInfo.flag,
             })
+
+            /** PUSH NEW STATUS */
+
+            this.state.today_status.push( this.state.today_cases )
+            this.state.today_status.push( this.state.today_deaths )
+
+            this.setState({
+              today_status:this.state.today_status
+            });
+
+
 
 
 
@@ -431,107 +451,99 @@ class Main extends React.Component
         )
       }
         return(
-            <Container>
-           <Header
-           style={{
-               backgroundColor:"#000"
-           }}
-           androidStatusBarColor={"#000"}
-           >
-          <Body style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }} >
-            <Image
-            source={{uri:this.state.flag}}
-            style={{width:"20%",height:"20%"}}
+
+
+          <Container style={styles.container} >
+
+
+            <Content >
+
+              {/** HEADER IMAGE */  }
+              <Image source={require('../assets/header_image.jpg')}  style={styles.headerImage} />
+
+              <Text style={styles.screenTitle}> {i18n.t('app_title')} </Text>
+              
+             {/** CHART  */}
+             
+              <ProgressChart
+                data={{
+                  data:this.state.today_status
+                }}
+                width={Dimensions.get('window').width - 16}
+                height={220}
+                chartConfig={{
+                  backgroundColor: '#1cc910',
+                  backgroundGradientFrom: '#fff',
+                  backgroundGradientTo: '#fff',
+                  decimalPlaces: 2,
+                  color: (opacity = 1) => `rgba(18, 55, 100, ${opacity})`,
+                  style: {
+                    borderRadius: 16,
+                  },
+                  
+                }}
+                style={{
+                  marginVertical: 8,
+                  borderRadius: 16,
+                }}
+                hideLegend={false}
             />
-            <Text style={{fontSize:25,color:"#fff",fontFamily:"Cairo_Regular"}} > Jordan COVID 19 Tracker</Text>
-          </Body>
-        </Header>
-            <Content>
-                <Text style={{margin:"3%",fontSize:12}} >{i18n.t('last_time_was_updated')}: {Moment(this.state.update).format('hh:mmA dddd')}  </Text>
-              <Card>
-                <CardItem>
-                  <Body>
-                    <Text style={{fontFamily:"Cairo_Regular"}}>
-                      {i18n.t('today_info')}
-                    </Text>
-                    <View style={{flex:1,flexDirection:"row",flexWrap:"wrap",marginTop:"3%"}} >
 
-                      {/* <View style={{flex:1,alignItems:"center",justifyContent:"center"}}>
-                          <FontAwesome5 name={"bed"} size={30}  />
-                          <Text style={{margin:"5%" , fontSize:25,fontFamily:"Cairo_Bold"}}>
-                          {i18n.t('cases')}: {this.state.today_cases}
-                          </Text>
-                      </View>
+            { /** CASES */ }
 
-                      <View style={{flex:1,alignItems:"center",justifyContent:"center"}}>
-                        <MaterialCommunityIcons name={"emoticon-dead"} size={30} />
-                        <Text style={{margin:"5%" , fontSize:25,fontFamily:"Cairo_Bold"}}>
-                        {i18n.t('deaths')}: {this.state.today_deaths}
+            <View style={styles.casesContner}>
+                
+               <Text style={ styles.statusBlocks2 }></Text>
+               <Text style={ styles.statusBlocksText }> {i18n.t('cases')} : {this.state.today_cases} </Text>
+               <Text style={ styles.statusBlocks1 }></Text>
+               <Text style={ styles.statusBlocksText }> {i18n.t('deaths')} : {this.state.today_deaths} </Text>
+               {/* <Text style={ styles.statusBlocks3 }></Text> */}
+               
+
+
+            </View>
+
+              
+
+                        <View style={{flex:1,alignItems:"center"}} >
+                          <Image source={require('../assets/manWithmask.jpg')} style={{width:150,height:250}} />
+                        <Text style={styles.overAllInfoTitle}>
+                           {i18n.t('over_all_info')}
                         </Text>
-                      </View> */}
-                      <LineChart
-                    data={{
-                      labels: this.state.analytics_date,
-                      datasets: [
-                        {
-                          data: this.state.analytics_num,
-                          color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`, // optional
-                          strokeWidth: 3 // optional
-                        }
-                      ],
-                    }}
-                    width={screenWidth}
-                    height={220}
-                    chartConfig={chartConfig}
-             />
+                        </View>
 
-                   
-                    </View>
-                   
-                  </Body>
-                </CardItem>
-              </Card>
+                       <CardItem>
+                         <Body style={{flex:1,flexDirection:'row',flexWrap:'wrap'}}>
+                           {/* <Text style={styles.overAllInfoText}>
+                            {i18n.t('cases')}: {this.state.today_cases}
+                           </Text> */}
+                           <Text style={styles.overAllInfoText}>
+                            {i18n.t('yesterday_cases')}: {this.state.yesterday_cases}
+                           </Text>
+                           <Text style={styles.overAllInfoText}>
+                            {i18n.t('recoverd')}: {this.state.recoverd}
+                           </Text>
+                           <Text style={styles.overAllInfoText}>
+                            {i18n.t('active')}: {this.state.active}
+                           </Text>
+                           <Text style={styles.overAllInfoText}>
+                            {i18n.t('critical')}: {this.state.critical}
+                           </Text>
+                           <Text style={styles.overAllInfoText}>
+                            {i18n.t('deaths')}: {this.state.deaths}
+                           </Text>
+                           <Text style={styles.overAllInfoText}>
+                            {i18n.t('all_cases')}: {this.state.cases}
+                           </Text>
+                           <Text style={styles.overAllInfoText}>
+                            {i18n.t('tests')}: {this.state.tests}
+                           </Text>                   
+                         </Body>
+                       </CardItem>
 
-              <Card>
-              
-
-
-                <CardItem>
-                  <Body>
-                    <Text style={{fontFamily:"Cairo_Bold"}}>
-                    {i18n.t('over_all_info')}
-                    </Text>
-                    <Text style={{margin:"5%" ,fontFamily:"Cairo_Regular", fontSize:18}}>
-                    <FontAwesome name={"heartbeat"} size={15} /> {i18n.t('cases')}: {this.state.today_cases}
-                    </Text>
-                    <Text style={{margin:"5%" ,fontFamily:"Cairo_Regular", fontSize:18}}>
-                    <FontAwesome name={"heartbeat"} size={15} /> {i18n.t('yesterday_cases')}: {this.state.yesterday_cases}
-                    </Text>
-                    <Text style={{margin:"5%" ,fontFamily:"Cairo_Regular", fontSize:18}}>
-                    <FontAwesome name={"heartbeat"} size={15} /> {i18n.t('recoverd')}: {this.state.recoverd}
-                    </Text>
-                    <Text style={{margin:"5%" ,fontFamily:"Cairo_Regular", fontSize:18}}>
-                    <FontAwesome name={"heartbeat"} size={15} /> {i18n.t('active')}: {this.state.active}
-                    </Text>
-                    <Text style={{margin:"5%" ,fontFamily:"Cairo_Regular", fontSize:18}}>
-                    <FontAwesome name={"heartbeat"} size={15} /> {i18n.t('critical')}: {this.state.critical}
-                    </Text>
-                    <Text style={{margin:"5%" ,fontFamily:"Cairo_Regular", fontSize:18}}>
-                    <FontAwesome name={"heartbeat"} size={15} /> {i18n.t('deaths')}: {this.state.deaths}
-                    </Text>
-                    <Text style={{margin:"5%" ,fontFamily:"Cairo_Regular", fontSize:18}}>
-                    <FontAwesome name={"heartbeat"} size={15} /> {i18n.t('all_cases')}: {this.state.cases}
-                    </Text>
-                    <Text style={{margin:"5%" ,fontFamily:"Cairo_Regular", fontSize:18}}>
-                    <FontAwesome name={"heartbeat"} size={15} /> {i18n.t('tests')}: {this.state.tests}
-                    </Text>                   
-                  </Body>
-                </CardItem>
-              </Card>
-              
             </Content>
+
           </Container>
-    
         )
     }
 }
@@ -543,6 +555,7 @@ const styles = StyleSheet.create({
       backgroundColor: '#fff',
       alignItems: 'center',
       justifyContent: 'center',
+      marginTop:"10%"
     },
     animationContainer: {
       backgroundColor: '#fff',
@@ -553,6 +566,58 @@ const styles = StyleSheet.create({
     buttonContainer: {
       paddingTop: 20,
     },
+    headerImage: {
+      height:150,
+      width:350,
+      borderRadius:9
+    },
+    screenTitle:{
+      marginTop:"5%",
+      color:"#123764",
+      fontFamily:'Cairo_Bold',
+    },
+    statusBlocks1:{
+      backgroundColor:'#8b0101',
+      padding:25 ,
+      height:10 ,
+      margin:"2%" ,
+      borderRadius:5
+    },
+    statusBlocks2:{
+      backgroundColor:'#123764',
+      padding:25 ,
+      height:10 ,
+      margin:"2%" ,
+      borderRadius:5
+    },
+    statusBlocks3:{
+      backgroundColor:'#000',
+      padding:25 ,
+      height:10 ,
+      margin:"2%" ,
+      borderRadius:5
+    },
+    statusBlocksText:{
+       marginTop:"5%",
+       fontSize:12,
+       fontFamily:'Cairo_Regular'
+       
+    },
+    casesContner:{
+      flex:1 , 
+      flexDirection:'row' ,
+      justifyContent:"center"
+    },
+    overAllInfoTitle:{
+      fontFamily:"Cairo_Bold",
+      color:"#123764",
+      
+    },
+    overAllInfoText:{
+      fontFamily:"Cairo_Bold", 
+      fontSize:12,
+      margin:'2%'
+    }
   
   });
   
